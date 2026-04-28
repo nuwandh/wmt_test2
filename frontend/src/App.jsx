@@ -8,6 +8,10 @@ function App() {
   const [title, setTitle] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
+  const [editPriority, setEditPriority] = useState('Medium');
+  const [editDueDate, setEditDueDate] = useState('');
+  const [priority, setPriority] = useState('Medium');
+  const [dueDate, setDueDate] = useState('');
 
   // Fetch all tasks
   const fetchTasks = async () => {
@@ -27,17 +31,19 @@ function App() {
   // Add a new task
   const handleAddTask = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim() || !dueDate) return;
 
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ title, priority, dueDate }),
       });
       const newTask = await res.json();
       setTasks([...tasks, newTask]);
       setTitle('');
+      setPriority('Medium');
+      setDueDate('');
     } catch (err) {
       console.error('Error adding task:', err);
     }
@@ -69,14 +75,18 @@ function App() {
     }
   };
 
-  // Update task title
-  const handleUpdateTitle = async (id) => {
-    if (!editTitle.trim()) return;
+  // Update task details
+  const handleUpdateTask = async (id) => {
+    if (!editTitle.trim() || !editDueDate) return;
     try {
       const res = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: editTitle }),
+        body: JSON.stringify({ 
+          title: editTitle,
+          priority: editPriority,
+          dueDate: editDueDate
+        }),
       });
       const updatedTask = await res.json();
       setTasks(tasks.map((t) => (t._id === id ? updatedTask : t)));
@@ -106,10 +116,29 @@ function App() {
             placeholder="Enter a new task..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            required
           />
-          <button id="add-task-btn" type="submit">
-            + Add Task
-          </button>
+          <div className="task-form-controls">
+            <select 
+              className="priority-select"
+              value={priority} 
+              onChange={(e) => setPriority(e.target.value)}
+            >
+              <option value="High">High Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="Low">Low Priority</option>
+            </select>
+            <input 
+              className="date-input"
+              type="date" 
+              value={dueDate} 
+              onChange={(e) => setDueDate(e.target.value)}
+              required
+            />
+            <button id="add-task-btn" type="submit">
+              + Add Task
+            </button>
+          </div>
         </form>
 
         {/* Stats */}
@@ -162,13 +191,28 @@ function App() {
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
                         onKeyDown={(e) =>
-                          e.key === 'Enter' && handleUpdateTitle(task._id)
+                          e.key === 'Enter' && handleUpdateTask(task._id)
                         }
                         autoFocus
                       />
+                      <select 
+                        className="edit-select"
+                        value={editPriority} 
+                        onChange={(e) => setEditPriority(e.target.value)}
+                      >
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                      </select>
+                      <input 
+                        className="edit-date"
+                        type="date" 
+                        value={editDueDate} 
+                        onChange={(e) => setEditDueDate(e.target.value)}
+                      />
                       <button
                         className="save-btn"
-                        onClick={() => handleUpdateTitle(task._id)}
+                        onClick={() => handleUpdateTask(task._id)}
                       >
                         Save
                       </button>
@@ -183,11 +227,23 @@ function App() {
                       </button>
                     </div>
                   ) : (
-                    <span
-                      className={`task-title ${task.status === 'Completed' ? 'line-through' : ''}`}
-                    >
-                      {task.title}
-                    </span>
+                    <div className="task-info">
+                      <span
+                        className={`task-title ${task.status === 'Completed' ? 'line-through' : ''}`}
+                      >
+                        {task.title}
+                      </span>
+                      <div className="task-meta">
+                        <span className={`priority-badge priority-${task.priority?.toLowerCase() || 'medium'}`}>
+                          {task.priority || 'Medium'}
+                        </span>
+                        {task.dueDate && (
+                          <span className="due-date">
+                            📅 {new Date(task.dueDate).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
 
@@ -203,6 +259,8 @@ function App() {
                       onClick={() => {
                         setEditingId(task._id);
                         setEditTitle(task.title);
+                        setEditPriority(task.priority || 'Medium');
+                        setEditDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
                       }}
                       title="Edit task"
                     >

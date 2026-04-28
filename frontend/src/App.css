@@ -105,12 +105,21 @@ body {
 /* ---------- Form ---------- */
 .task-form {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1.8rem;
 }
 
-.task-form input {
+.task-form-controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.task-form-controls > * {
   flex: 1;
+}
+
+.task-form input, .task-form .priority-select, .task-form .date-input {
   padding: 0.85rem 1.1rem;
   font-size: 0.95rem;
   border: 1px solid var(--border);
@@ -125,7 +134,7 @@ body {
   color: var(--text-secondary);
 }
 
-.task-form input:focus {
+.task-form input:focus, .task-form .priority-select:focus, .task-form .date-input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
@@ -292,6 +301,46 @@ body {
   color: var(--text-secondary);
 }
 
+.task-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.task-meta {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  align-items: center;
+}
+
+.priority-badge {
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+
+.priority-high {
+  background: rgba(255, 77, 106, 0.15);
+  color: var(--danger);
+}
+
+.priority-medium {
+  background: rgba(240, 165, 74, 0.15);
+  color: var(--pending);
+}
+
+.priority-low {
+  background: rgba(34, 214, 138, 0.15);
+  color: var(--success);
+}
+
+.due-date {
+  color: var(--text-secondary);
+}
+
 /* Right side */
 .task-right {
   display: flex;
@@ -349,7 +398,7 @@ body {
   flex: 1;
 }
 
-.edit-input {
+.edit-input, .edit-select, .edit-date {
   flex: 1;
   padding: 0.45rem 0.7rem;
   font-size: 0.9rem;
