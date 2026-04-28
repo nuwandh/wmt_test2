@@ -28,6 +28,8 @@ router.post('/', async (req, res) => {
   const task = new Task({
     title: req.body.title,
     status: req.body.status,
+    priority: req.body.priority,
+    dueDate: req.body.dueDate,
   });
 
   try {
@@ -46,6 +48,8 @@ router.put('/:id', async (req, res) => {
 
     if (req.body.title != null) task.title = req.body.title;
     if (req.body.status != null) task.status = req.body.status;
+    if (req.body.priority != null) task.priority = req.body.priority;
+    if (req.body.dueDate != null) task.dueDate = req.body.dueDate;
 
     const updatedTask = await task.save();
     res.json(updatedTask);

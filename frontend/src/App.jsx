@@ -39,8 +39,11 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, priority, dueDate }),
       });
-      const newTask = await res.json();
-      setTasks([...tasks, newTask]);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to add task');
+      }
+      setTasks([...tasks, data]);
       setTitle('');
       setPriority('Medium');
       setDueDate('');
@@ -88,8 +91,11 @@ function App() {
           dueDate: editDueDate
         }),
       });
-      const updatedTask = await res.json();
-      setTasks(tasks.map((t) => (t._id === id ? updatedTask : t)));
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to update task');
+      }
+      setTasks(tasks.map((t) => (t._id === id ? data : t)));
       setEditingId(null);
       setEditTitle('');
     } catch (err) {
